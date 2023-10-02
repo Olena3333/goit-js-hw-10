@@ -1,5 +1,5 @@
-import axios from 'axios';
 import SlimSelect from 'slim-select';
+import 'slim-select/dist/slimselect.css';
 import { fetchBreeds, fetchCatByBreed } from './cat-api';
 import Notiflix from 'notiflix';
 
@@ -8,12 +8,7 @@ const loaderEl = document.querySelector('.loader');
 const errorEl = document.querySelector('.error');
 const divEl = document.querySelector('.cat-info');
 
-new SlimSelect({
-  select: '.breed-select',
-});
-
-loaderEl.classList.add('is-hidden');
-errorEl.classList.add('is-hidden');
+//
 
 fetchBreeds()
   .then(data => {
@@ -23,17 +18,27 @@ fetchBreeds()
       })
       .join('');
     selectEl.innerHTML = markup;
+    selectEl.classList.remove('is-hidden');
+    new SlimSelect({
+      select: '.breed-select',
+    });
   })
   .catch(err => {
     errorEl.classList.remove('is-hidden');
     console.log(err);
+    Notiflix.Notify.failure(
+      'Oops! Something went wrong! Try reloading the page!'
+    );
+  })
+  .finally(() => {
+    loaderEl.classList.add('is-hidden');
   });
 
 function onChange() {
   loaderEl.classList.remove('is-hidden');
   errorEl.classList.add('is-hidden');
   const selectedCat = selectEl.value;
-  console.log(selectedCat);
+
   fetchCatByBreed(selectedCat)
     .then(info => {
       renderPage(info);
@@ -41,6 +46,9 @@ function onChange() {
     .catch(err => {
       errorEl.classList.remove('is-hidden');
       console.log(err);
+    })
+    .finally(() => {
+      loaderEl.classList.add('is-hidden');
     });
 }
 
